@@ -6,7 +6,6 @@ module.exports = {
     },
     extends: [
       'airbnb',
-      'prettier/react',
       'eslint:recommended',
       'plugin:prettier/recommended',
     ],
