@@ -48,11 +48,9 @@ function getRandomNum(max) {
   return Math.floor(Math.random() * max);
 }
 
-function generateRandomName() {
+module.exports = () => {
   const randomHeader = getRandomNum(data.header.length);
   const randomBody = getRandomNum(data.body.length);
 
   return data.header[randomHeader] + data.body[randomBody];
-}
-
-console.log(generateRandomName());
+};

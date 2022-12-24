@@ -1,6 +1,7 @@
 const express = require('express');
 const { Server } = require('http');
 const socketIo = require('socket.io');
+const randomNickNameGenerator = require('./util/generateRandomName.util');
 
 const app = express();
 const http = Server(app);
@@ -36,8 +37,8 @@ io.on('connection', sock => {
   // socket.on("정해야 함!!", (msg) => {})
   // 퇴장한 유저 닉네임 제거한 유저들 닉네임 배열 클라로 보내주기
 
-  socketIdMap[sock.id] = null;
-  console.log(sock.id, '유저가 소켓에 연결하였습니다.');
+  socketIdMap[sock.id] = randomNickNameGenerator();
+  console.log(socketIdMap[sock.id], '유저가 소켓에 연결하였습니다.');
 
   sock.on('BUY', data => {
     console.log(data);
