@@ -33,10 +33,7 @@ io.on('connection', sock => {
   }
   nicknameToSocketIdMap[nickname] = sock.id;
   socketIdMap[sock.id] = nickname;
-  io.emit('nickname', {
-    newUser: nickname,
-    usersList: Object.values(socketIdMap),
-  });
+  io.emit('nickname', { usersList: [socketIdMap] });
 
   sock.on('disconnect', () => {
     const disconnectedUser = socketIdMap[sock.id];
@@ -44,7 +41,7 @@ io.on('connection', sock => {
     delete socketIdMap[sock.id];
     io.emit('disconnectedUser', {
       disconnectedUser,
-      usersList: Object.values(socketIdMap),
+      usersList: { usersList: [socketIdMap] },
     });
   });
 
