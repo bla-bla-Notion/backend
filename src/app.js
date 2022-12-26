@@ -25,6 +25,13 @@ app.get('/*', (_, res) => res.redirect('/'));
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
 let document;
+function connectedUsersList() {
+  let usersList = [];
+  for (const [key, value] of Object.entries(socketIdMap)) {
+    usersList.push({ socketId: key, nickname: value });
+  }
+  return usersList;
+}
 
 io.on('connection', sock => {
   const nickname = randomNickNameGenerator();
@@ -35,16 +42,20 @@ io.on('connection', sock => {
   socketIdMap[sock.id] = nickname;
   io.emit('nickname', {
     newUser: nickname,
-    usersList: [socketIdMap],
+    usersList: connectedUsersList(),
   });
 
   sock.on('disconnect', () => {
     const disconnectedUser = socketIdMap[sock.id];
     nicknameToSocketIdMap[socketIdMap[sock.id]] = null;
     delete socketIdMap[sock.id];
+    let usersList = [];
+    for (const [key, value] of Object.entries(socketIdMap)) {
+      usersList.push({ id: key, nickname: value });
+    }
     io.emit('disconnectedUser', {
       disconnectedUser,
-      usersList: [socketIdMap],
+      usersList: connectedUsersList(),
     });
   });
 
