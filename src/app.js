@@ -16,11 +16,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.set('view engine', 'pug');
-// app.set('views', __dirname + '/views');
-// app.use('/public', express.static(__dirname + '/public'));
-// app.get('/', (_, res) => res.render('home'));
-// app.get('/*', (_, res) => res.redirect('/'));
+app.set('view engine', 'pug');
+app.set('views', __dirname + '/views');
+app.use('/public', express.static(__dirname + '/public'));
+app.get('/', (_, res) => res.render('home'));
+app.get('/*', (_, res) => res.redirect('/'));
 
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
@@ -33,7 +33,10 @@ io.on('connection', sock => {
   }
   nicknameToSocketIdMap[nickname] = sock.id;
   socketIdMap[sock.id] = nickname;
-  io.emit('nickname', { usersList: [socketIdMap] });
+  io.emit('nickname', {
+    newUser: nickname,
+    usersList: [socketIdMap],
+  });
 
   sock.on('disconnect', () => {
     const disconnectedUser = socketIdMap[sock.id];
@@ -41,7 +44,7 @@ io.on('connection', sock => {
     delete socketIdMap[sock.id];
     io.emit('disconnectedUser', {
       disconnectedUser,
-      usersList: { usersList: [socketIdMap] },
+      usersList: [socketIdMap],
     });
   });
 
