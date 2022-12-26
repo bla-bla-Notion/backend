@@ -1,11 +1,11 @@
 const socket = io();
 
-socket.on('nickname', (user, list) => {
-  console.log(user, list);
+socket.on('nickname', data => {
+  console.log(data);
 });
 
-socket.on('disconnectedUser', (user, list) => {
-  console.log(user, list);
+socket.on('disconnectedUser', data => {
+  console.log(data);
 });
 
 const messageList = document.querySelector('ul');
