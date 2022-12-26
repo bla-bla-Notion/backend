@@ -1,11 +1,20 @@
 const express = require('express');
 const { Server } = require('http');
-const socketIo = require('socket.io');
+const cors = require('cors');
 const randomNickNameGenerator = require('./util/generateRandomName.util');
 
 const app = express();
 const http = Server(app);
-const io = socketIo(http);
+const io = require('socket.io')(http, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
@@ -13,17 +22,51 @@ app.use('/public', express.static(__dirname + '/public'));
 app.get('/', (_, res) => res.render('home'));
 app.get('/*', (_, res) => res.redirect('/'));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const socketIdMap = {};
+const nicknameToSocketIdMap = {};
+let document;
+function connectedUsersList() {
+  let usersList = [];
+  for (const [key, value] of Object.entries(socketIdMap)) {
+    usersList.push({ socketId: key, nickname: value });
+  }
+  return usersList;
+}
 
-//  프로젝트 요구사항
-// 입장한 유저별로 랜덤 닉네임을 생성해서 클라로 보내주기
-// textarea 작업 내용 실시간 렌더링
-// socket.on("정해야 함!!", (msg) => {})
-// 퇴장한 유저 닉네임 제거한 유저들 닉네임 배열 클라로 보내주기
+io.on('connection', sock => {
+  const nickname = randomNickNameGenerator();
+  while (nicknameToSocketIdMap[nickname]) {
+    nickname = randomNickNameGenerator();
+  }
+  nicknameToSocketIdMap[nickname] = sock.id;
+  socketIdMap[sock.id] = nickname;
+  io.emit('nickname', {
+    newUser: nickname,
+    usersList: connectedUsersList(),
+  });
 
-io.on('connection', sock => {});
+  sock.on('disconnect', () => {
+    const disconnectedUser = socketIdMap[sock.id];
+    nicknameToSocketIdMap[socketIdMap[sock.id]] = null;
+    delete socketIdMap[sock.id];
+    let usersList = [];
+    for (const [key, value] of Object.entries(socketIdMap)) {
+      usersList.push({ id: key, nickname: value });
+    }
+    io.emit('disconnectedUser', {
+      disconnectedUser,
+      usersList: connectedUsersList(),
+    });
+  });
 
-http.listen(8080, () => {
-  console.log('8080포트로 서버가 요청을 받을 준비가 됐어요');
+  sock.emit('message', document);
+  sock.on('message', text => {
+    sock.broadcast.emit('message', text);
+    sock.emit('message', text);
+    document = text;
+  });
+});
+
+http.listen(3000, () => {
+  console.log('3000포트로 서버가 요청을 받을 준비가 됐어요');
 });
