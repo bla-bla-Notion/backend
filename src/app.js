@@ -1,11 +1,17 @@
 const express = require('express');
 const { Server } = require('http');
 const socketIo = require('socket.io');
+const cors = require('cors');
 const randomNickNameGenerator = require('./util/generateRandomName.util');
 
 const app = express();
 const http = Server(app);
-const io = socketIo(http);
+const io = socketIo(http, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
 
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
@@ -13,6 +19,7 @@ app.use('/public', express.static(__dirname + '/public'));
 app.get('/', (_, res) => res.render('home'));
 app.get('/*', (_, res) => res.redirect('/'));
 
+app.use(corse());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
