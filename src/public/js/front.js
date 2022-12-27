@@ -24,6 +24,7 @@ socket.on('message', message => {
   const text = messageForm.querySelector('textarea');
   text.innerText = message.text;
   messageList.append(li);
+  text.value = '';
 });
 
 messageForm.addEventListener('submit', handleSubmit);
