@@ -24,7 +24,11 @@ app.get('/*', (_, res) => res.redirect('/'));
 
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
-let document;
+let document = null;
+const interval = setInterval(document => {
+  // db에 저장하는 메소드 (document)
+}, 3600000);
+
 function connectedUsersList() {
   let usersList = [];
   for (const [key, value] of Object.entries(socketIdMap)) {
@@ -57,13 +61,14 @@ io.on('connection', sock => {
       disconnectedUser,
       usersList: connectedUsersList(),
     });
-  });
 
-  sock.emit('message', document);
-  sock.on('message', text => {
-    sock.broadcast.emit('message', text);
-    sock.emit('message', text);
-    document = text;
+    socket.emit('load-document', document);
+    socket.on('send-changes', delta => {
+      socket.broadcast.emit('receive-changes', delta);
+    });
+    socket.on('save-document', async data => {
+      document = data;
+    });
   });
 });
 
