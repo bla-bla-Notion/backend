@@ -59,11 +59,12 @@ io.on('connection', sock => {
     });
   });
 
-  sock.emit('message', document);
-  sock.on('message', text => {
-    sock.broadcast.emit('message', text);
-    sock.emit('message', text);
-    document = text;
+  sock.emit('load-document', document);
+  sock.on('send-changes', delta => {
+    sock.broadcast.emit('receive-changes', delta);
+  });
+  sock.on('save-document', async data => {
+    document = data;
   });
 });
 
