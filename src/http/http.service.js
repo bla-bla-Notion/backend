@@ -1,4 +1,3 @@
-const { redisClient } = require('../schemas/index.schema');
 const HttpRepository = require('./http.repository');
 class HttpService {
   constructor() {
@@ -6,7 +5,6 @@ class HttpService {
   }
   findPageList = async () => {
     const pageList = await this.httpRepository.findPage();
-    console.log(pageList);
     pageList.sort((a, b) => {
       return b.createdAt - a.createdAt;
     });
