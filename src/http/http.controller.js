@@ -1,6 +1,4 @@
 const HttpService = require('./http.service');
-//const {} = require('../exception/index.exception.js');
-
 class HttpController {
   constructor() {
     this.httpService = new HttpService();

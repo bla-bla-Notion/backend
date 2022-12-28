@@ -5,10 +5,6 @@ class HttpService {
   }
   findPageList = async () => {
     const pageList = await this.httpRepository.findPage();
-    pageList.sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
-
     return pageList.map(post => {
       return {
         pageId: post.pageId,
