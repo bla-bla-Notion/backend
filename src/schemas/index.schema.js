@@ -14,6 +14,4 @@ const connect = async () => {
   console.log('Redis connected!');
 };
 
-connect();
-
 module.exports = { redisClient, connect };

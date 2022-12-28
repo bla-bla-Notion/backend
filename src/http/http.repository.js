@@ -1,9 +1,11 @@
 const { redisClient } = require('../schemas/index.schema');
-
 class HttpRepository {
-  constructor() {
-    this.redisClient = redisClient;
-  }
+  findPage = async () => {
+    const result = await redisClient.json.get('pageData', {
+      path: '.pages',
+    });
+    return result;
+  };
 }
 
 module.exports = HttpRepository;
