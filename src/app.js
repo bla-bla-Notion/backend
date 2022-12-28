@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/', indexRouter);
+app.use('/api', indexRouter);
 
 const randomNickNameGenerator = require('./util/generateRandomName.util');
 
