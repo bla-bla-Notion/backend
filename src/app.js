@@ -1,8 +1,10 @@
 const express = require('express');
 const { Server } = require('http');
 const cors = require('cors');
-const randomNickNameGenerator = require('./util/generateRandomName.util');
+const indexRouter = require('./routes/index.route');
+const { redisClient, connect } = require('./schemas/index.schema');
 
+connect();
 const app = express();
 const http = Server(app);
 const io = require('socket.io')(http, {
@@ -16,15 +18,34 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.set('view engine', 'pug');
-app.set('views', __dirname + '/views');
-app.use('/public', express.static(__dirname + '/public'));
-app.get('/', (_, res) => res.render('home'));
-app.get('/*', (_, res) => res.redirect('/'));
+app.get('/', indexRouter);
+
+const randomNickNameGenerator = require('./util/generateRandomName.util');
 
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
-let document;
+let document = null;
+
+setInterval(async () => {
+  const currentDate = new Date();
+  ('2022-12-28 오후 2:28:00');
+  const createdAt = currentDate.toLocaleString('ko-KR', { timeZone: 'UTC' });
+  const timeStamp = currentDate.getTime();
+  const previousDate = new Date(timeStamp - 1000 * 60 * 60 * 6).toLocaleString(
+    'ko-KR',
+    { timeZone: 'UTC' },
+  );
+  const page = { createdAt, document };
+  // db에서 page list를 불러오기
+  // cache data 중 createdAt === previousDate 이면,
+  // 삭제하고 currentDate으로 생성
+  let pageData;
+  await redisClient.lRange('page', 0, -1, function (err, reply) {
+    console.log(reply);
+    pageData = JSON.parse(reply);
+  });
+}, 1000 * 60 * 60);
+
 function connectedUsersList() {
   let usersList = [];
   for (const [key, value] of Object.entries(socketIdMap)) {
@@ -59,11 +80,12 @@ io.on('connection', sock => {
     });
   });
 
-  sock.emit('message', document);
-  sock.on('message', text => {
-    sock.broadcast.emit('message', text);
-    sock.emit('message', text);
-    document = text;
+  sock.emit('load-document', document);
+  sock.on('send-changes', delta => {
+    sock.broadcast.emit('receive-changes', delta);
+  });
+  sock.on('save-document', async data => {
+    document = data;
   });
 });
 
