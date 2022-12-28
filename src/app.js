@@ -2,6 +2,7 @@ const express = require('express');
 const { Server } = require('http');
 const cors = require('cors');
 const randomNickNameGenerator = require('./util/generateRandomName.util');
+const { ConnectionTimeoutError } = require('redis');
 
 const app = express();
 const http = Server(app);
@@ -23,42 +24,28 @@ app.get('/', (_, res) => res.render('home'));
 app.get('/*', (_, res) => res.redirect('/'));
 
 const socketIdMap = {};
-const nicknameToSocketIdMap = {};
 let document;
-function connectedUsersList() {
-  let usersList = [];
-  for (const [key, value] of Object.entries(socketIdMap)) {
-    usersList.push({ socketId: key, nickname: value });
-  }
-  return usersList;
-}
-
 io.on('connection', sock => {
-  const nickname = randomNickNameGenerator();
-  while (nicknameToSocketIdMap[nickname]) {
-    nickname = randomNickNameGenerator();
-  }
-  nicknameToSocketIdMap[nickname] = sock.id;
-  socketIdMap[sock.id] = nickname;
+  let nickname = randomNickNameGenerator();
+  //닉네임 검증하기
+  let keys = Object.keys(socketIdMap);
+  let found = keys.find(element => element == nickname);
+  console.log(found);
+  socketIdMap[nickname] = sock.id;
+
   io.emit('nickname', {
     newUser: nickname,
-    usersList: connectedUsersList(),
+    usersList: socketIdMap,
   });
-
   sock.on('disconnect', () => {
-    const disconnectedUser = socketIdMap[sock.id];
-    nicknameToSocketIdMap[socketIdMap[sock.id]] = null;
-    delete socketIdMap[sock.id];
-    let usersList = [];
-    for (const [key, value] of Object.entries(socketIdMap)) {
-      usersList.push({ id: key, nickname: value });
-    }
+    const disconnectedUser = socketIdMap[nickname];
+    delete socketIdMap[nickname];
+
     io.emit('disconnectedUser', {
       disconnectedUser,
-      usersList: connectedUsersList(),
+      usersList: socketIdMap,
     });
   });
-
   sock.emit('message', document);
   sock.on('message', text => {
     sock.broadcast.emit('message', text);
