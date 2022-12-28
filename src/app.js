@@ -1,7 +1,7 @@
 const express = require('express');
 const { Server } = require('http');
 const cors = require('cors');
-const { redisClient, connect } = require('./schemas/index.schema');
+const { connect } = require('./schemas/index.schema');
 const indexRouter = require('./routes/index.route');
 const {
   errorHandler,
@@ -25,12 +25,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', indexRouter);
 
-const randomNickNameGenerator = require('./util/generateRandomName.util');
-
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
 let document = null;
-pageAutoSaver(document);
+setInterval(document => {
+  pageAutoSaver(document);
+}, 1000 * 60 * 60);
 
 function connectedUsersList() {
   let usersList = [];

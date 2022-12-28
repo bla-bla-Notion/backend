@@ -17,10 +17,11 @@ class HttpService {
 
   getDetailPage = async pageId => {
     const getPage = await this.httpRepository.findPage();
+    console.log(getPage);
     if (!getPage[pageId])
       throw new ValidationError('해당 게시물을 찾을 수 없습니다.', 404);
 
-    return getPage;
+    return getPage[pageId];
   };
 }
 
