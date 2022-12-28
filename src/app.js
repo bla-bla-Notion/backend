@@ -41,24 +41,28 @@ function connectedUsersList() {
 }
 
 io.on('connection', sock => {
-  let nickname = randomNickNameGenerator();
-  //닉네임 검증하기
-  let keys = Object.keys(socketIdMap);
-  let found = keys.find(element => element == nickname);
-  console.log(found);
-  socketIdMap[nickname] = sock.id;
-
+  const nickname = randomNickNameGenerator();
+  while (nicknameToSocketIdMap[nickname]) {
+    nickname = randomNickNameGenerator();
+  }
+  nicknameToSocketIdMap[nickname] = sock.id;
+  socketIdMap[sock.id] = nickname;
   io.emit('nickname', {
     newUser: nickname,
-    usersList: socketIdMap,
+    usersList: connectedUsersList(),
   });
-  sock.on('disconnect', () => {
-    const disconnectedUser = socketIdMap[nickname];
-    delete socketIdMap[nickname];
 
+  sock.on('disconnect', () => {
+    const disconnectedUser = socketIdMap[sock.id];
+    nicknameToSocketIdMap[socketIdMap[sock.id]] = null;
+    delete socketIdMap[sock.id];
+    let usersList = [];
+    for (const [key, value] of Object.entries(socketIdMap)) {
+      usersList.push({ id: key, nickname: value });
+    }
     io.emit('disconnectedUser', {
       disconnectedUser,
-      usersList: socketIdMap,
+      usersList: connectedUsersList(),
     });
   });
 
