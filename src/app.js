@@ -8,6 +8,7 @@ const {
 } = require('./middlewares/error-handler.middleware');
 const { redisClient, connect } = require('./schemas/index.schema');
 
+
 connect();
 const app = express();
 const http = Server(app);
@@ -58,31 +59,6 @@ function connectedUsersList() {
   return usersList;
 }
 
-io.on('connection', sock => {
-  const nickname = randomNickNameGenerator();
-  while (nicknameToSocketIdMap[nickname]) {
-    nickname = randomNickNameGenerator();
-  }
-  nicknameToSocketIdMap[nickname] = sock.id;
-  socketIdMap[sock.id] = nickname;
-  io.emit('nickname', {
-    newUser: nickname,
-    usersList: connectedUsersList(),
-  });
-
-  sock.on('disconnect', () => {
-    const disconnectedUser = socketIdMap[sock.id];
-    nicknameToSocketIdMap[socketIdMap[sock.id]] = null;
-    delete socketIdMap[sock.id];
-    let usersList = [];
-    for (const [key, value] of Object.entries(socketIdMap)) {
-      usersList.push({ id: key, nickname: value });
-    }
-    io.emit('disconnectedUser', {
-      disconnectedUser,
-      usersList: connectedUsersList(),
-    });
-  });
 
   sock.emit('load-document', document);
   sock.on('send-changes', delta => {
@@ -90,6 +66,7 @@ io.on('connection', sock => {
   });
   sock.on('save-document', async data => {
     document = data;
+
   });
 });
 
