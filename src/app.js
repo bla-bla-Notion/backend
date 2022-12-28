@@ -2,6 +2,10 @@ const express = require('express');
 const { Server } = require('http');
 const cors = require('cors');
 const indexRouter = require('./routes/index.route');
+const {
+  errorHandler,
+  errorLogger,
+} = require('./middlewares/error-handler.middleware');
 const { redisClient, connect } = require('./schemas/index.schema');
 
 connect();
@@ -84,6 +88,9 @@ io.on('connection', sock => {
     document = data;
   });
 });
+
+app.use(errorLogger); // Error Logger
+app.use(errorHandler); // Error Handler
 
 http.listen(3000, () => {
   console.log('3000포트로 서버가 요청을 받을 준비가 됐어요');
