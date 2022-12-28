@@ -27,7 +27,7 @@ app.use('/api', indexRouter);
 
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
-let document = null;
+let document = {};
 setInterval(document => {
   pageAutoSaver(document);
 }, 1000 * 60 * 60);
