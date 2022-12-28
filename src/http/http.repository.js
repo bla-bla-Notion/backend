@@ -1,5 +1,9 @@
-const HttpRepository = require('./http.repository');
+const { redisClient } = require('../schemas/index.schema');
 
-class HttpRepository {}
+class HttpRepository {
+  constructor() {
+    this.redisClient = redisClient;
+  }
+}
 
 module.exports = HttpRepository;

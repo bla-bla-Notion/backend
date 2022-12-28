@@ -1,14 +1,15 @@
 const express = require('express');
 const { Server } = require('http');
 const cors = require('cors');
+const { redisClient, connect } = require('./schemas/index.schema');
 const indexRouter = require('./routes/index.route');
 const {
   errorHandler,
   errorLogger,
 } = require('./middlewares/error-handler.middleware');
-const { redisClient, connect } = require('./schemas/index.schema');
+const randomNickNameGenerator = require('./util/generateRandomName.util');
+const pageAutoSaver = require('./util/autoSavePage.util');
 
-connect();
 const app = express();
 const http = Server(app);
 const io = require('socket.io')(http, {
@@ -17,38 +18,16 @@ const io = require('socket.io')(http, {
     methods: ['GET', 'POST'],
   },
 });
-
+connect(); // redis 연결
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.get('/', indexRouter);
-
-const randomNickNameGenerator = require('./util/generateRandomName.util');
+app.use('/', indexRouter);
 
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
 let document = null;
-
-setInterval(async () => {
-  const currentDate = new Date();
-  ('2022-12-28 오후 2:28:00');
-  const createdAt = currentDate.toLocaleString('ko-KR', { timeZone: 'UTC' });
-  const timeStamp = currentDate.getTime();
-  const previousDate = new Date(timeStamp - 1000 * 60 * 60 * 6).toLocaleString(
-    'ko-KR',
-    { timeZone: 'UTC' },
-  );
-  const page = { createdAt, document };
-  // db에서 page list를 불러오기
-  // cache data 중 createdAt === previousDate 이면,
-  // 삭제하고 currentDate으로 생성
-  let pageData;
-  await redisClient.lRange('page', 0, -1, function (err, reply) {
-    console.log(reply);
-    pageData = JSON.parse(reply);
-  });
-}, 1000 * 60 * 60);
+pageAutoSaver(document);
 
 function connectedUsersList() {
   let usersList = [];

@@ -3,7 +3,8 @@ const router = express.Router();
 const HttpController = require('../http/http.controller');
 const httpController = new HttpController();
 
-router.get();
-router.get();
+router.get('/', (req, res) => {
+  res.send('http router');
+});
 
 module.exports = router;
