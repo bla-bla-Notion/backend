@@ -1,4 +1,4 @@
-const socket = io('https://dev-jn.shop');
+const socket = io();
 
 socket.on('nickname', (user, list) => {
   console.log(user, list);
@@ -18,6 +18,7 @@ function handleSubmit(event) {
 }
 
 socket.on('message', message => {
+  console.log(message, message.text);
   const li = document.createElement('li');
   li.innerText = message.text;
   const text = messageForm.querySelector('textarea');
