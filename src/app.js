@@ -31,6 +31,7 @@ let document = {};
 setInterval(document => {
   pageAutoSaver(document);
   document = null;
+  io.emit('receive-changes', document);
 }, 1000 * 60);
 
 function connectedUsersList() {
@@ -68,9 +69,6 @@ io.on('connection', sock => {
   });
 
   sock.emit('load-document', document);
-  setInterval(document => {
-    sock.emit('load-document', document);
-  }, 1000 * 60 + 100);
   sock.on('send-changes', delta => {
     sock.broadcast.emit('receive-changes', delta);
   });
