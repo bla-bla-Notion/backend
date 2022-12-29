@@ -2,7 +2,7 @@
 1시간동안 사이트에 접속한 모든 유저와 공동으로 낙서를 즐길 수 있는 공동 낙서장입니다.
 
 ### 웹사이트
-https://63a439d111e256656d561b76--dapper-bombolone-cb620b.netlify.app/
+https://bla-bla-notion.vercel.app/
 
 ### 데모 영상
 
