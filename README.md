@@ -13,12 +13,6 @@ https://bla-bla-notion.vercel.app/
 - 1시간 단위로 저장된 페이지는 왼쪽 메뉴바 하단 목록에서 조회 가능하며, 이 또한 생성된지 1시간이 지나면 자동 소멸됩니다.
 
 ### 기술 스택
-`frontend`
-- javascript
-- react
-- axios
-- socket.io
-
 `backend`
 - node
 - express
@@ -39,12 +33,8 @@ https://bla-bla-notion.vercel.app/
   - 와이어프레임, ERD, API 명세서 관리
 
 ### 핵심 기능
+##### 랜덤 닉네임을 생성하고, 중복되지 않도록 닉네임을 부여
 ##### 메인페이지 공동 편집 기능
-- 
-  
-##### 1시간 단위 페이지 자동 저장 및 조회
-- 
-  
+##### 1시간 단위 페이지 자동 저장 및 조회  
 ##### front-back HTTPS 통신
 - backend 서버에서 nginx 및 reverse proxy 설정을 통해 HTTPS로 요청을 보내는 front req에 대응
-
