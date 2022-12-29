@@ -31,7 +31,6 @@ let document = {};
 setInterval(() => {
   pageAutoSaver(document);
   document = null;
-  io.emit(load - document, document);
 }, 1000 * 10);
 
 function connectedUsersList() {
