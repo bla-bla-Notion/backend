@@ -29,10 +29,10 @@ const socketIdMap = {};
 const nicknameToSocketIdMap = {};
 let document = {};
 setInterval(() => {
-  console.log('setInterval docs:', document);
   pageAutoSaver(document);
   document = null;
-}, 1000 * 60);
+  io.emit(load - document, document);
+}, 1000 * 10);
 
 function connectedUsersList() {
   let usersList = [];
