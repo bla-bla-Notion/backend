@@ -31,7 +31,7 @@ let document = {};
 setInterval(() => {
   pageAutoSaver(document);
   document = null;
-}, 1000 * 10);
+}, 1000 * 60 * 60); // !!!최종 배포에서 1시간으로 바꿔야 함!!!
 
 function connectedUsersList() {
   let usersList = [];
