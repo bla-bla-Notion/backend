@@ -16,16 +16,14 @@ class HttpController {
   };
   getDetailPage = async (req, res, next) => {
     try {
-       const { pageId } = req.params; 
-       const page = await this.httpService.getDetailPage( pageId );
-        
-        res.status(200).json({ data: page});
-    } catch(err) {
-        next(err);
+      const { pageId } = req.params;
+      const page = await this.httpService.getDetailPage(pageId);
+
+      res.status(200).json({ data: page });
+    } catch (err) {
+      next(err);
     }
   };
 }
-
-
 
 module.exports = HttpController;
