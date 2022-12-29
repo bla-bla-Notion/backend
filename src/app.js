@@ -28,7 +28,8 @@ app.use('/api', indexRouter);
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
 let document = {};
-setInterval(document => {
+setInterval(() => {
+  console.log('setInterval docs:', document);
   pageAutoSaver(document);
   document = null;
 }, 1000 * 60);
@@ -71,10 +72,6 @@ io.on('connection', sock => {
   sock.on('send-changes', delta => {
     sock.broadcast.emit('receive-changes', delta);
   });
-  setInterval(document => {
-    console.log('io block setInterval docs:', document);
-    sock.emit('load-document', document);
-  }, 1000 * 60 + 10);
   sock.on('save-document', async data => {
     document = data;
   });

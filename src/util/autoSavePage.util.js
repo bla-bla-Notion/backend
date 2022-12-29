@@ -2,6 +2,7 @@ const { redisClient } = require('../schemas/index.schema');
 
 // 1시간마다 자동으로 최신화 문서를 db에 저장하고, 항상 총 6개의 문서로 관리
 module.exports = async document => {
+  console.log('autosave.util document', document);
   // app.js에서 setInterval이 발동될 때, date 객체를 생성하고 이를 ISO string으로 변환하여 저장
   const currentDate = new Date();
   const createdAt = currentDate.toISOString();
