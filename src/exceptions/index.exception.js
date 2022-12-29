@@ -1,4 +1,4 @@
-//값이 존재하지않거나 잘못된 값으로 들어왔을때
+// req로 받아야 하는 값이 없을 경우 사용하는 에러 객체로 Error 객체를 extends
 class InvalidParamsError extends Error {
   constructor(message, status) {
     super(message);
@@ -8,7 +8,7 @@ class InvalidParamsError extends Error {
   }
 }
 
-// 유효성 인증 x
+// 값이 유효하지 않은 경우 사용하는 에러 객체로 Error 객체를 extends
 class ValidationError extends Error {
   constructor(message, status) {
     super(message);
@@ -18,4 +18,5 @@ class ValidationError extends Error {
   }
 }
 
+// 두 커스텀 에러 객체 모듈화
 module.exports = { InvalidParamsError, ValidationError };
