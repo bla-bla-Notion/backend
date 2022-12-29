@@ -15,12 +15,13 @@ class HttpService {
     });
   };
 
-  getDetailPage = async (pageId) => {
+  getDetailPage = async pageId => {
     const getPage = await this.httpRepository.findPage();
-    if (!getPage[pageId]) 
-        throw new ValidationError('해당 게시물을 찾을 수 없습니다.', 404);
-    
-    return getPage
-}}
+    if (!getPage[pageId])
+      throw new ValidationError('해당 게시물을 찾을 수 없습니다.', 404);
+
+    return getPage[pageId];
+  };
+}
 
 module.exports = HttpService;

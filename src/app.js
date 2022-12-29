@@ -1,14 +1,15 @@
 const express = require('express');
 const { Server } = require('http');
 const cors = require('cors');
+const { connect } = require('./schemas/index.schema');
 const indexRouter = require('./routes/index.route');
 const {
   errorHandler,
   errorLogger,
 } = require('./middlewares/error-handler.middleware');
-const { redisClient, connect } = require('./schemas/index.schema');
+const randomNickNameGenerator = require('./util/generateRandomName.util');
+const pageAutoSaver = require('./util/autoSavePage.util');
 
-connect();
 const app = express();
 const http = Server(app);
 const io = require('socket.io')(http, {
@@ -17,38 +18,20 @@ const io = require('socket.io')(http, {
     methods: ['GET', 'POST'],
   },
 });
-
+connect(); // redis 연결
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', indexRouter);
 
-const randomNickNameGenerator = require('./util/generateRandomName.util');
-
 const socketIdMap = {};
 const nicknameToSocketIdMap = {};
-let document = null;
-
-setInterval(async () => {
-  const currentDate = new Date();
-  ('2022-12-28 오후 2:28:00');
-  const createdAt = currentDate.toLocaleString('ko-KR', { timeZone: 'UTC' });
-  const timeStamp = currentDate.getTime();
-  const previousDate = new Date(timeStamp - 1000 * 60 * 60 * 6).toLocaleString(
-    'ko-KR',
-    { timeZone: 'UTC' },
-  );
-  const page = { createdAt, document };
-  // db에서 page list를 불러오기
-  // cache data 중 createdAt === previousDate 이면,
-  // 삭제하고 currentDate으로 생성
-  let pageData;
-  await redisClient.lRange('page', 0, -1, function (err, reply) {
-    console.log(reply);
-    pageData = JSON.parse(reply);
-  });
-}, 1000 * 60 * 60);
+let document = {};
+setInterval(() => {
+  pageAutoSaver(document);
+  document = null;
+}, 1000 * 60 * 60); // !!!최종 배포에서 1시간으로 바꿔야 함!!!
 
 function connectedUsersList() {
   let usersList = [];
@@ -59,24 +42,28 @@ function connectedUsersList() {
 }
 
 io.on('connection', sock => {
-  let nickname = randomNickNameGenerator();
-  //닉네임 검증하기
-  let keys = Object.keys(socketIdMap);
-  let found = keys.find(element => element == nickname);
-  console.log(found);
-  socketIdMap[nickname] = sock.id;
-
+  const nickname = randomNickNameGenerator();
+  while (nicknameToSocketIdMap[nickname]) {
+    nickname = randomNickNameGenerator();
+  }
+  nicknameToSocketIdMap[nickname] = sock.id;
+  socketIdMap[sock.id] = nickname;
   io.emit('nickname', {
     newUser: nickname,
-    usersList: socketIdMap,
+    usersList: connectedUsersList(),
   });
-  sock.on('disconnect', () => {
-    const disconnectedUser = socketIdMap[nickname];
-    delete socketIdMap[nickname];
 
+  sock.on('disconnect', () => {
+    const disconnectedUser = socketIdMap[sock.id];
+    nicknameToSocketIdMap[socketIdMap[sock.id]] = null;
+    delete socketIdMap[sock.id];
+    let usersList = [];
+    for (const [key, value] of Object.entries(socketIdMap)) {
+      usersList.push({ id: key, nickname: value });
+    }
     io.emit('disconnectedUser', {
       disconnectedUser,
-      usersList: socketIdMap,
+      usersList: connectedUsersList(),
     });
   });
 
