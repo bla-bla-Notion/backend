@@ -5,8 +5,11 @@ class HttpService {
   constructor() {
     this.httpRepository = new HttpRepository();
   }
+  //서비스 페이지 리스트를 불러오는 API
   findPageList = async () => {
+    //레포지토레 레이어 메서드 사용
     const pageList = await this.httpRepository.findPage();
+    //레포지토리에서 불러온 데이터를 형식에 맞게 정리
     return pageList.map(post => {
       return {
         pageId: post.pageId,
