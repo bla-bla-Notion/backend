@@ -30,7 +30,8 @@ const nicknameToSocketIdMap = {};
 let document = {};
 setInterval(document => {
   pageAutoSaver(document);
-}, 1000 * 60 * 60);
+  document = null;
+}, 1000 * 60);
 
 function connectedUsersList() {
   let usersList = [];
@@ -67,6 +68,9 @@ io.on('connection', sock => {
   });
 
   sock.emit('load-document', document);
+  setInterval(document => {
+    sock.emit('load-document', document);
+  }, 1000 * 60 + 100);
   sock.on('send-changes', delta => {
     sock.broadcast.emit('receive-changes', delta);
   });
