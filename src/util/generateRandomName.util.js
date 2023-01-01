@@ -1,3 +1,4 @@
+// 랜덤 닉네임을 만들기 위한 기초 데이터 셋
 const data = {
   header: [
     '매니저',
@@ -41,16 +42,23 @@ const data = {
     '최혜연',
     '한요셉',
     '류현',
+    '박동석',
+    '박동석',
+    '박동석',
   ],
 };
 
+// 0 ~ 최대값 사이의 랜덤 숫자를 생성해주는 함수
 function getRandomNum(max) {
   return Math.floor(Math.random() * max);
 }
 
+// 랜덤 닉네임 생성 함수를 모듈화
 module.exports = () => {
+  // header와 body 배열에 대하여 랜덤 index 값을 꺼내오기 위해, 각 배열에 대한 랜덤 번호 생성
   const randomHeader = getRandomNum(data.header.length);
   const randomBody = getRandomNum(data.body.length);
 
+  // header배열과 body 배열에서 랜덤 인덱스로 조회한 값을 더하여 반환
   return data.header[randomHeader] + data.body[randomBody];
 };
